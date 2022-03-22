@@ -1,6 +1,8 @@
 # Code to generate PERCLOS Dataset
 
 # import the necessary packages
+import shutil
+
 from imutils.video import VideoStream
 import time
 import argparse
@@ -16,6 +18,7 @@ import os
 import statistics
 import mediapipe as mp
 import time
+import logging
 
 
 
@@ -90,6 +93,21 @@ def get_ear(eye_points, facial_landmarks, frame_ge, drawline=True):
 
     return ear, left_point  # include right point later
 
+def check_make_folder(path, vid_path, remove=False):
+    if not remove:
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        else:
+            print('output folder {} exists'.format(vid_path))
+    else:
+        """
+        Force delete folder
+        """
+        if not os.path.exists(path):
+            shutil.rmtree(path)
+            os.makedirs(path, exist_ok=True)
+        else:
+            os.makedirs(path, exist_ok=True)
 
 
 
@@ -107,6 +125,9 @@ print("[INFO] starting video stream...")
 
 subject_list = [('01', (580, 150)), ('02', (580, 150)), ('03', (580, 150))]
 
+cwd = os.getcwd()
+
+base_folder = r'C:\Users\USER\Perclos_k_io\Raja_Drowsy_Data_Video'
 
 for subject_number, bb_start in subject_list:
 
@@ -122,9 +143,7 @@ for subject_number, bb_start in subject_list:
     input_vid_name = r'Raja_Drowsy_Data_Video/' + subject_name + r'/' + subject_name + input_vid_number[vid_number]
     output_vid_number = ['', r'_MD.mp4', r'_MD_2.mp4', r'_MD_3.mp4', r'_MD_4.mp4']
     output_vid_name = r'mp_output/' + subject_name + r'/mp_' + subject_name + output_vid_number[vid_number]
-    # full_dir_output = os.path.join(base_folder, output_vid_name)
-    # vid_name = 'test_video.mp4'
-    # vid_name = 'S03_MD.mov'
+
     # capturing video from input file
     cap = cv2.VideoCapture(input_vid_name)
     print(input_vid_name)
@@ -137,9 +156,12 @@ for subject_number, bb_start in subject_list:
     cap.set(cv2.CAP_PROP_POS_FRAMES, frame_n_start - 1)
     frame_n_end = frame_n_start
     frame_transition_end = frame_transition
-    # can set the desired window size here
-    # please leave some additional space of at least 30 pixels for height so that we can display
-    # frame number and other parameters
+    """
+    can set the desired window size here
+    please leave some additional space of at least 30 pixels for height so that we can display
+    frame number and other parameters
+
+    """
 
     # roi_buffer = 250
     desired_window_size: Tuple[int, int] = (300, 300)  # (width, height)
