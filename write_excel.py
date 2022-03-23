@@ -38,7 +38,7 @@ frame_data_df = pd.DataFrame()
 blink_data_df = pd.DataFrame()
 epoch_data_df = pd.DataFrame()
 
-print('program ssstart')
+print('program start')
 
 for i in range(loops):
     frame_counter += 1
