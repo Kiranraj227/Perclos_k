@@ -130,7 +130,7 @@ cwd = os.getcwd()
 for subject_number, bb_start in subject_list:
 
     # Setting up directories
-    base_folder = r'C://Users//USER//Perclos_k_io'
+    base_folder = r'C:/Users/USER/Perclos_k_io'
 
     subject_name = 'S{}'.format(subject_number)
 
@@ -211,14 +211,14 @@ for subject_number, bb_start in subject_list:
     blink_interval = 0
     perclos = 0
     perclos_epoch = 0
-    frame_n_start = 1  # local frame tracker
+    frame_n_start = 0  # local frame tracker
 
     # run related configurations
     # Set this based on how long you want to run the program
     # Default is set as 300 frames (10 seconds)
     length_of_run = 300
     frame_transition = 1
-    cal_state = 1  # for calibration state (future)
+    cal_state = 0  # for calibration state (future)
     ec = 1  # EC run
 
     frame_data_df = pd.DataFrame()
@@ -237,17 +237,24 @@ for subject_number, bb_start in subject_list:
 
         break_flag = 0
 
-        input_vid_name = r'Raja_Drowsy_Data_Video/' + subject_name + r'/' + subject_name + input_vid_number[vid_number]
-        input_vid_path = os.path.join(base_folder, input_vid_name)
+        input_vid_name = r'/Raja_Drowsy_Data_Video/' + subject_name + r'/' + subject_name + input_vid_number[vid_number]
+        # input_vid_path = os.path.join(base_folder, input_vid_name)
+        input_vid_path = base_folder + input_vid_name
 
         if not os.path.exists(input_vid_path):
-            write_to_excel = 0
+            if first_run:
+                write_to_excel = 0
+                first_run = 0
+            print('input folder video not exist')
             continue
         else:
-            write_to_excel = 1
+            if first_run:
+                write_to_excel = 1
+                first_run = 0
+            print('input folder video exist')
 
-        output_vid_dir = r'try_output//' + subject_name
-        output_vid_name = output_vid_dir + r'//mp_' + subject_name + output_vid_number[vid_number]
+        output_vid_dir = r'try_output\\' + subject_name
+        output_vid_name = output_vid_dir + r'\\mp_' + subject_name + output_vid_number[vid_number]
         output_vid_path = os.path.join(base_folder, output_vid_dir)
 
         # checks whether the output folder exists
@@ -278,8 +285,9 @@ for subject_number, bb_start in subject_list:
             frame_counter = 0
 
 
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_n_start - 1)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_n_start)
         frame_n_end = frame_n_start
+        frame_transition = frame_counter
         frame_transition_end = frame_transition
 
         with mp_face_mesh.FaceMesh(
@@ -317,6 +325,8 @@ for subject_number, bb_start in subject_list:
 
                     frame_counter += 1
                     frame_counter_list.append(frame_counter)
+                    frame_transition_end += 1
+                    frame_n_end += 1
 
                     faces = []
                     if results.multi_face_landmarks:
@@ -432,6 +442,7 @@ for subject_number, bb_start in subject_list:
                             frame_info_dict = {
                                 'Vid_name': [out_vid_name],
                                 'Frames': [frame_counter],
+                                'Frames_local': [frame_n_end],
                                 'EAR_left': [ear_left],
                                 'EAR_right': [ear_right],
                                 'EAR_avg': [ear_avg],
@@ -491,8 +502,8 @@ for subject_number, bb_start in subject_list:
                     # show the output frame
                     cv2.imshow("Output", output)
 
-                    frame_n_end += 1
-                    frame_transition_end += 1
+
+
 
                     # to stop the code when the letter 'q' is pressed on keyboard (only if cv2.imshow is used)
                     if cv2.waitKey(5) & 0xFF == ord('q'):
