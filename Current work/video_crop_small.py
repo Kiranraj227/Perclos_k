@@ -139,7 +139,7 @@ while True:
         if len(roi_color[1]) < min_w:
             min_w = len(roi_color[1])
 
-        # this function we feed in the cropped image and desired window size
+        # this function we feed in the cropped frame and desired window size
         output = pad_vframes(roi_color, desired_window_size)
 
         # cv2.putText(output, "PERCLOS: {:.2f}".format(p), (10, 50),

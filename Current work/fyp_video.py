@@ -27,8 +27,8 @@ def find_biggest_contour(image):
         contours, hierarchy = cv2.findContours(image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     # Copy to prevent modification
-    #image = image.copy()
-    #img, contours, hierarchy = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    #frame = frame.copy()
+    #img, contours, hierarchy = cv2.findContours(frame, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     #print len(contours)
 
     # Isolate largest contour
@@ -65,7 +65,7 @@ while(cap.isOpened()):
     lower_red = np.array([0,153,0])
     upper_red = np.array([255,255,255])
     
-    # Threshold the LAB image to get only red colors
+    # Threshold the LAB frame to get only red colors
     image_red = cv2.inRange(lab, lower_red, upper_red)
 
     
@@ -143,7 +143,7 @@ while(cap.isOpened()):
 
 # In[7]:   
  
-    # Bitwise-AND mask and original image
+    # Bitwise-AND mask and original frame
     res = cv2.bitwise_and(frame,frame, mask= image_red)
     
     #sframe=smaller_img(frame)

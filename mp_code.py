@@ -33,7 +33,7 @@ with mp_face_mesh.FaceMesh(
             # If loading a video, use 'break' instead of 'continue'.
             break
 
-        # To improve performance, optionally mark the image as not writeable to
+        # To improve performance, optionally mark the frame as not writeable to
         # pass by reference.
         image.flags.writeable = False
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -43,7 +43,7 @@ with mp_face_mesh.FaceMesh(
 
         results = face_mesh.process(image)
 
-        # Draw the face mesh annotations on the image.
+        # Draw the face mesh annotations on the frame.
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         if results.multi_face_landmarks:
@@ -57,7 +57,7 @@ with mp_face_mesh.FaceMesh(
                         .get_default_face_mesh_contours_style())
 
                 # mp_drawing.draw_landmarks(
-                #     image=image,
+                #     frame=frame,
                 #     landmark_list=face_landmarks,
                 #     connections=mp_face_mesh.FACEMESH_TESSELATION,
                 #     landmark_drawing_spec=None,
@@ -80,8 +80,8 @@ with mp_face_mesh.FaceMesh(
         cv2.putText(image, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
 
         cv2.imshow('MediaPipe FaceMesh', image)
-        # Flip the image horizontally for a selfie-view display.
-        # cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
+        # Flip the frame horizontally for a selfie-view display.
+        # cv2.imshow('MediaPipe Face Mesh', cv2.flip(frame, 1))
 
         if cv2.waitKey(5) & 0xFF == ord('q'):
             print("you ended it")

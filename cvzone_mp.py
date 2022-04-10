@@ -77,7 +77,7 @@ while True:
 
         img = cv2.resize(img, (600, 600))
 
-        cv2.imshow("image", img)
+        cv2.imshow("frame", img)
 
         if cv2.waitKey(5) & 0xFF == ord('q'):
             print("you ended it")

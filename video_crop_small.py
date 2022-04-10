@@ -317,14 +317,14 @@ while True:
         if roi_color.shape[1] < min_w:
             min_w = len(roi_color[1])
 
-        # this function we feed in the cropped image and desired window size
+        # this function we feed in the cropped frame and desired window size
         output = pad_vframes(roi_color, desired_window_size)
         # image_scaled = imutils.resize(roi_color, width=220)
         text = "Frame: {}".format(frame_transition_end)
         cv2.putText(output, text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         out.write(output)
 
-        # cv2.imshow("image", image_scaled)
+        # cv2.imshow("frame", image_scaled)
 
         # show the frame bounding box
         # cv2.imshow("Output", output)

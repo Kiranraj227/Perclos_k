@@ -281,11 +281,11 @@ while True:
         if len(roi_color[1]) < min_w:
             min_w = len(roi_color[1])
 
-        # this function we feed in the cropped image and desired window size
+        # this function we feed in the cropped frame and desired window size
         output = pad_vframes(roi_color, desired_window_size)
         image_scaled = imutils.resize(roi_color, width=220)
 
-        cv2.imshow("image", image_scaled)
+        cv2.imshow("frame", image_scaled)
 
         # show the frame bounding box
         cv2.imshow("Output", output)

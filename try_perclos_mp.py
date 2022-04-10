@@ -66,7 +66,7 @@ def euclidean_distance(leftx, lefty, rightx, righty):
 
 
 # Defining the eye aspect ratio
-def get_ear(eye_points, facial_landmarks, frame_ge, drawline=True):
+def get_ear(eye_points, facial_landmarks, frame_ge, drawline=False):
     # Defining the left point of the eye
     left_point = (facial_landmarks[eye_points[0]][0], facial_landmarks[eye_points[0]][1])
     # Defining the right point of the eye
@@ -121,16 +121,20 @@ start_pitstop = start
 
 print("[INFO] starting video stream...")
 
-# subject_list = [('03', (580, 150)), ('05', (580, 150)), ('08', (470, 200)), ('11', (470, 160)), ('13', (470, 160))]
+subject_list = [('01', (570, 50)), ('02', (570, 150)), ('03', (580, 150)), ('04', (570, 180)), ('05', (580, 150)),
+                ('06', (600, 150)), ('07', (600, 180)), ('08', (470, 200)), ('10', (470, 220)), ('11', (470, 160)),
+                ('13', (470, 160)), ('15', (460, 220)), ('16', (460, 220)), ('17', (500, 110)), ('18', (500, 220)),
+                ('19', (470, 180)), ('20', (470, 150)), ('22', (500, 100)), ('23', (500, 150)), ('24', (500, 150)),
+                ('26', (500, 200)), ('27', (500, 240))]
 
-subject_list = [('01', (580, 150)), ('02', (580, 150)), ('03', (580, 150))]
+subject_list = [subject_list[2]]
 
 cwd = os.getcwd()
 
 for subject_number, bb_start in subject_list:
 
     # Setting up directories
-    base_folder = r'C:/Users/USER/Perclos_k_io'
+    base_folder = r'E:\\Perclos_k_io'
 
     subject_name = 'S{}'.format(subject_number)
 
@@ -216,7 +220,7 @@ for subject_number, bb_start in subject_list:
     # run related configurations
     # Set this based on how long you want to run the program
     # Default is set as 300 frames (10 seconds)
-    length_of_run = 300
+    length_of_run = 1800
     frame_transition = 1
     cal_state = 0  # for calibration state (future)
     ec = 1  # EC run
@@ -309,17 +313,17 @@ for subject_number, bb_start in subject_list:
                 if ret:
                     fps_start = time.time()
 
-                    # To improve performance, optionally mark the image as not writeable to
+                    # To improve performance, optionally mark the frame as not writeable to
                     # pass by reference.
                     image.flags.writeable = False
                     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
                     image = image[bb_start[1]:bb_end[1], bb_start[0]:bb_end[0]]
-                    # image = cv2.resize(image, (600, 600)) # is this necessary
+                    # frame = cv2.resize(frame, (600, 600)) # is this necessary
 
                     results = face_mesh.process(image)
 
-                    # Draw the face mesh annotations on the image.
+                    # Draw the face mesh annotations on the frame.
                     image.flags.writeable = True
                     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
@@ -349,10 +353,6 @@ for subject_number, bb_start in subject_list:
                             if faces:
                                 face = faces[0]
 
-                                # place landmarks
-                                for id in idList:
-                                    cv2.circle(image, face[id], 1, color, cv2.FILLED)
-
                             ear_left, left_eye_left_point = get_ear([33, 159, 133, 145], face, image)
                             # Calculating right eye aspect ratio
                             ear_right, right_eye_left_point = get_ear([362, 386, 263, 374], face, image)
@@ -376,9 +376,14 @@ for subject_number, bb_start in subject_list:
                                     blink_update = 1
                                     blink_start = frame_counter
                                 eyes_state = 1  # close
+                                eye_text = 'close'
+                                color = (0, 0, 255)  # red
 
                             else:
                                 eyes_state = 0  # open
+                                eye_text = 'open'
+                                color = (255, 0, 0)  # blue
+
                                 if blink_update == 1:
                                     blink_counter += 1
                                     blink_interval = blink_start - blink_end
@@ -463,26 +468,23 @@ for subject_number, bb_start in subject_list:
 
                             frame_data_df = pd.concat([frame_data_df, frame_info])
 
+                            # place landmarks
+                            for id in idList:
+                                cv2.circle(image, face[id], 1, color, cv2.FILLED)
+
 
                     else:
                         print("no face")
                         no_face += 1
 
-                    # this function we feed in the cropped image and desired window size
+                    # this function we feed in the cropped frame and desired window size
                     # output = pad_vframes(roi_color, desired_window_size)
                     output = cv2.resize(image, (600, 600))
 
                     # image_scaled = imutils.resize(roi_color, width=220)
                     text = "Frame: {}".format(frame_transition_end)
-                    # text coordinates are (x,y)
+                    # text coordinates are (x,y) in green
                     cv2.putText(output, text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-                    if eyes_state == 1:
-                        eye_text = 'close'
-                        color = (0, 0, 255)  # red
-                    else:
-                        eye_text = 'open'
-                        color = (255, 0, 0)  # blue
 
                     fps_end = time.time()
                     fps = 1 / (fps_end - fps_start)
@@ -497,9 +499,10 @@ for subject_number, bb_start in subject_list:
                     cv2.putText(output, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                     text = "FPS: {}".format(int(fps))
                     cv2.putText(output, text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                    out.write(output)
+                    # out.write(output)
 
                     # show the output frame
+                    cv2.imshow("Cropped input", image)
                     cv2.imshow("Output", output)
 
 
@@ -565,6 +568,8 @@ for subject_number, bb_start in subject_list:
             dataset_name = 'EO'  # EO
     else:
         dataset_name = 'MD'
+
+    write_to_excel = 0
 
     if write_to_excel == 1:
         # Create a Pandas Excel writer using XlsxWriter as the engine.

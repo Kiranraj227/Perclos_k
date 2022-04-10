@@ -259,17 +259,17 @@ for dpath in all_path:
             if ret:
                 fps_start = time.time()
 
-                # To improve performance, optionally mark the image as not writeable to
+                # To improve performance, optionally mark the frame as not writeable to
                 # pass by reference.
                 image.flags.writeable = False
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
                 image = image[bb_start[1]:bb_end[1], bb_start[0]:bb_end[0]]
-                # image = cv2.resize(image, (600, 600)) # is this necessary
+                # frame = cv2.resize(frame, (600, 600)) # is this necessary
 
                 results = face_mesh.process(image)
 
-                # Draw the face mesh annotations on the image.
+                # Draw the face mesh annotations on the frame.
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
@@ -347,7 +347,7 @@ for dpath in all_path:
                     print("no face")
                     no_face += 1
 
-                # cv2.imshow("clone", image)
+                # cv2.imshow("clone", frame)
                 # time.sleep(5)
                 # To determine the max window size
                 # if roi_color.shape[0] > max_h:
@@ -362,7 +362,7 @@ for dpath in all_path:
                 # if roi_color.shape[1] < min_w:
                 #     min_w = roi_color.shape[1]
 
-                # this function we feed in the cropped image and desired window size
+                # this function we feed in the cropped frame and desired window size
                 # output = pad_vframes(roi_color, desired_window_size)
                 image = cv2.resize(image, (600, 600))
                 output = image
@@ -392,7 +392,7 @@ for dpath in all_path:
                 cv2.putText(output, text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                 out.write(output)
 
-                # cv2.imshow("image", image_scaled)
+                # cv2.imshow("frame", image_scaled)
 
                 # show the frame bounding box
                 cv2.imshow("Output", output)

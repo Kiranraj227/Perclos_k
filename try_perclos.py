@@ -388,7 +388,7 @@ for subject_number, bb_start in subject_list:
             # if roi_color.shape[1] < min_w:
             #     min_w = roi_color.shape[1]
 
-            # this function we feed in the cropped image and desired window size
+            # this function we feed in the cropped frame and desired window size
             # output = pad_vframes(roi_color, desired_window_size)
             output = cv2.resize(clone_img, (600, 600))
             # image_scaled = imutils.resize(roi_color, width=220)
@@ -417,7 +417,7 @@ for subject_number, bb_start in subject_list:
             cv2.putText(output, text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             out.write(output)
 
-            # cv2.imshow("image", image_scaled)
+            # cv2.imshow("frame", image_scaled)
 
             # show the frame bounding box
             cv2.imshow("Output", output)
