@@ -1,5 +1,4 @@
-# Code to generate PERCLOS Dataset - Dlib CNN + Dlib 68 landmarks
-# Max-Margin (MMOD) CNN face detector
+# Code to generate PERCLOS Dataset - Dlib HOG_SVM + Dlib 68 landmarks
 
 # import the necessary packages
 import shutil
@@ -112,36 +111,36 @@ def check_make_folder(path, vid_path, remove=False):
             os.makedirs(path, exist_ok=True)
 
 
-# def rect_to_bb(rect):
-#     # take a bounding predicted by dlib and convert it
-#     # to the format (x, y, w, h) as we would normally do
-#     # with OpenCV
-#     bb_x = rect.left()
-#     bb_y = rect.top()
-#     bb_w = rect.right() - bb_x
-#     bb_h = rect.bottom() - bb_y
-#
-#     # return a tuple of (x, y, w, h)
-#     return bb_x, bb_y, bb_w, bb_h
+def rect_to_bb(rect):
+    # take a bounding predicted by dlib and convert it
+    # to the format (x, y, w, h) as we would normally do
+    # with OpenCV
+    bb_x = rect.left()
+    bb_y = rect.top()
+    bb_w = rect.right() - bb_x
+    bb_h = rect.bottom() - bb_y
 
-def convert_and_trim_bb(image, rect):
-    # extract the starting and ending (x, y)-coordinates of the
-    # bounding box
-    bb_start_x = rect.left()
-    bb_start_y = rect.top()
-    bb_end_x = rect.right()
-    bb_end_y = rect.bottom()
-    # ensure the bounding box coordinates fall within the spatial
-    # dimensions of the image
-    bb_start_x = max(0, bb_start_x)
-    bb_start_y = max(0, bb_start_y)
-    bb_end_x = min(bb_end_x, image.shape[1])
-    bb_end_y = min(bb_end_y, image.shape[0])
-    # compute the width and height of the bounding box
-    bb_w = bb_end_x - bb_start_x
-    bb_h = bb_end_y - bb_start_y
-    # return our bounding box coordinates
-    return bb_start_x, bb_start_y, bb_w, bb_h
+    # return a tuple of (x, y, w, h)
+    return bb_x, bb_y, bb_w, bb_h
+
+# def convert_and_trim_bb(image, rect):
+#     # extract the starting and ending (x, y)-coordinates of the
+#     # bounding box
+#     bb_start_x = rect.left()
+#     bb_start_y = rect.top()
+#     bb_end_x = rect.right()
+#     bb_end_y = rect.bottom()
+#     # ensure the bounding box coordinates fall within the spatial
+#     # dimensions of the image
+#     bb_start_x = max(0, bb_start_x)
+#     bb_start_y = max(0, bb_start_y)
+#     bb_end_x = min(bb_end_x, image.shape[1])
+#     bb_end_y = min(bb_end_y, image.shape[0])
+#     # compute the width and height of the bounding box
+#     bb_w = bb_end_x - bb_start_x
+#     bb_h = bb_end_y - bb_start_y
+#     # return our bounding box coordinates
+#     return bb_start_x, bb_start_y, bb_w, bb_h
 
 # print some time info
 
@@ -188,23 +187,12 @@ for subject_number, bb_start in subject_list:
     desired_window_size: Tuple[int, int] = (300, 300)  # (width, height)
     bb_end = (bb_start[0] + desired_window_size[0], bb_start[1] + desired_window_size[1])
 
-    """
-    # mediapipe related variables
-    mp_drawing = mp.solutions.drawing_utils
-    mp_drawing_styles = mp.solutions.drawing_styles
-    mp_face_mesh = mp.solutions.face_mesh
-
-    drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
-    draw_lm = 0
-    # idList = [22, 23, 24, 26, 110, 157, 158, 159, 160, 161, 130, 243]
-    idList = [33, 159, 133, 145, 362, 386, 263, 374]
-    """
     dlib_path = 'E:\\Perclos_k_io\\Dependant files\\Dlib\\shape_predictor_68_face_landmarks.dat'
-    dlib_face_detector_path = 'E:\\Perclos_k_io\\Dependant files\\Dlib\\mmod_human_face_detector.dat'
+    # dlib_face_detector_path = 'E:\\Perclos_k_io\\Dependant files\\Dlib\\mmod_human_face_detector.dat'
 
     # Initializing the face detector and facial landmark predictor
     print("[INFO] loading models...")
-    face_detector = dlib.cnn_face_detection_model_v1(dlib_face_detector_path)
+    face_detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(dlib_path)
 
     color = (255, 0, 255)  #purple
@@ -305,8 +293,8 @@ for subject_number, bb_start in subject_list:
                 first_run = 0
             print('input folder video exist')
 
-        output_vid_dir = r'dlib_cnn_output\\' + subject_name
-        output_vid_name = output_vid_dir + r'\\dlib_cnn_' + subject_name + output_vid_number[vid_number]
+        output_vid_dir = r'dlib_HOG_output\\' + subject_name
+        output_vid_name = output_vid_dir + r'\\dlib_HOG_' + subject_name + output_vid_number[vid_number]
         output_vid_path = os.path.join(base_folder, output_vid_dir)
 
         # checks whether the output folder exists
@@ -365,10 +353,10 @@ for subject_number, bb_start in subject_list:
                 (h, w) = frame.shape[:2]
 
                 # convert to rgb
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
                 fps_face_detector_start = time.time()
-                results = face_detector(frame_rgb)
+                results = face_detector(frame_gray, 1)
                 fps_face_detector_end = time.time()
                 face_detector_processing_time = fps_face_detector_end - fps_face_detector_start
                 fps_face_detector = 1 / face_detector_processing_time
@@ -384,14 +372,14 @@ for subject_number, bb_start in subject_list:
                 #  Conversion return value dlib The rectangular bounding box is opencv Rectangular bounding box , And make sure it falls in the image
                 # loop over the face detections
                 try:
-                    # print('try')
-                    for r in results:
+                    print('try')
+                    for i, r in results:
                         # convert dlib's rectangle to a OpenCV-style bounding box
                         # [i.e., (x, y, w, h)], then draw the face bounding box
-                        (x, y, w, h) = convert_and_trim_bb(frame, r.rect)
-                        # print('in for loop')
+                        (x, y, w, h) = rect_to_bb(r)
+                        print('in for loop')
                         (startX, startY, endX, endY) = x, y, x + w, y + h
-                        # print('bb ok')
+                        print('bb ok')
                         buffer = 5
 
                         if first_run == 1:
@@ -411,7 +399,7 @@ for subject_number, bb_start in subject_list:
                         #     old_startX, old_endX, old_startY, old_endY = startX, endX, startY, endY
 
                         roi_color = frame[startY:endY, startX:endX]
-                        # print('roi_color ok')
+                        print('roi_color ok')
                         # roi_color = clone_img
                         roi_gray = cv2.cvtColor(roi_color, cv2.COLOR_BGR2GRAY)
 
@@ -595,7 +583,6 @@ for subject_number, bb_start in subject_list:
                     text = "P time(LD): {:.3f}".format(landmark_detector_processing_time)
                     cv2.putText(output, text, (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-
                 else:
                     text = "No_face: {}".format(no_face)
                     cv2.putText(output, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
@@ -604,7 +591,7 @@ for subject_number, bb_start in subject_list:
                 out.write(output)
 
                 # show the output frame
-                # cv2.imshow("Output", output)
+                cv2.imshow("Output", output)
 
                 # to stop the code when the letter 'q' is pressed on keyboard (only if cv2.imshow is used)
                 if cv2.waitKey(5) & 0xFF == ord('q'):
