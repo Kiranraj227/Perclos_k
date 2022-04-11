@@ -609,7 +609,7 @@ for subject_number, bb_start in subject_list:
                     cap.release()
                     print('[INFO] processing time =', timedelta(seconds=end - start))
                     break
-                """
+                # """
                 # Short run testing
                 if frame_n_end == (frame_n_start + length_of_run):
                     break_flag = 1
@@ -618,7 +618,7 @@ for subject_number, bb_start in subject_list:
                     cap.release()
                     print('[INFO] processing time =', timedelta(seconds=end - start))
                     break
-                """
+                # """
             else:
 
                 end = timer()

@@ -257,8 +257,8 @@ for subject_number, bb_start in subject_list:
                 first_run = 0
             print('input folder video exist')
 
-        output_vid_dir = r'try_output\\' + subject_name
-        output_vid_name = output_vid_dir + r'\\mp_' + subject_name + output_vid_number[vid_number]
+        output_vid_dir = r'mp_output/' + subject_name
+        output_vid_name = output_vid_dir + r'/mp_' + subject_name + output_vid_number[vid_number]
         output_vid_path = os.path.join(base_folder, output_vid_dir)
 
         # checks whether the output folder exists
@@ -321,7 +321,13 @@ for subject_number, bb_start in subject_list:
                     image = image[bb_start[1]:bb_end[1], bb_start[0]:bb_end[0]]
                     # frame = cv2.resize(frame, (600, 600)) # is this necessary
 
+                    fps_face_detector_start = time.time()
+
                     results = face_mesh.process(image)
+
+                    fps_face_detector_end = time.time()
+                    face_detector_processing_time = fps_face_detector_end - fps_face_detector_start
+                    fps_face_detector = 1 / face_detector_processing_time
 
                     # Draw the face mesh annotations on the frame.
                     image.flags.writeable = True
@@ -471,11 +477,11 @@ for subject_number, bb_start in subject_list:
                             # place landmarks
                             for id in idList:
                                 cv2.circle(image, face[id], 1, color, cv2.FILLED)
-
-
+                        no_face_flag = 0
                     else:
                         print("no face")
                         no_face += 1
+                        no_face_flag = 1
 
                     # this function we feed in the cropped frame and desired window size
                     # output = pad_vframes(roi_color, desired_window_size)
@@ -489,24 +495,33 @@ for subject_number, bb_start in subject_list:
                     fps_end = time.time()
                     fps = 1 / (fps_end - fps_start)
 
-                    text = "Eyes state: {}".format(eye_text)
-                    cv2.putText(output, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                    text = "PERCLOS: {:.2f}".format(perclos)
-                    cv2.putText(output, text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                    text = "EAR: {:.2f}".format(ear_rounded)
-                    cv2.putText(output, text, (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                    text = "BLINKS: {}".format(blink_counter)
-                    cv2.putText(output, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                    text = "FPS: {}".format(int(fps))
-                    cv2.putText(output, text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                    # out.write(output)
+                    if no_face_flag == 0:
+
+                        text = "Eyes state: {}".format(eye_text)
+                        cv2.putText(output, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        text = "PERCLOS: {:.2f}".format(perclos)
+                        cv2.putText(output, text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        text = "EAR: {:.2f}".format(ear_rounded)
+                        cv2.putText(output, text, (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        text = "BLINKS: {}".format(blink_counter)
+                        cv2.putText(output, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        text = "FPS: {}".format(int(fps))
+                        cv2.putText(output, text, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        text = "FPS_FD_LD: {}".format(int(fps_face_detector))
+                        cv2.putText(output, text, (10, 140), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        text = "P time(FD+LD): {:.2f}".format(face_detector_processing_time)
+                        cv2.putText(output, text, (10, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+                    else:
+                        text = "No_face: {}".format(no_face)
+                        cv2.putText(output, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                        text = "NO FACE DETECTED!!!"
+                        cv2.putText(output, text, (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4)
+                    out.write(output)
 
                     # show the output frame
-                    cv2.imshow("Cropped input", image)
+                    # cv2.imshow("Cropped input", image)
                     cv2.imshow("Output", output)
-
-
-
 
                     # to stop the code when the letter 'q' is pressed on keyboard (only if cv2.imshow is used)
                     if cv2.waitKey(5) & 0xFF == ord('q'):
@@ -569,7 +584,7 @@ for subject_number, bb_start in subject_list:
     else:
         dataset_name = 'MD'
 
-    write_to_excel = 0
+    # write_to_excel = 0
 
     if write_to_excel == 1:
         # Create a Pandas Excel writer using XlsxWriter as the engine.
