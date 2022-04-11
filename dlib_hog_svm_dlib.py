@@ -293,8 +293,8 @@ for subject_number, bb_start in subject_list:
                 first_run = 0
             print('input folder video exist')
 
-        output_vid_dir = r'dlib_HOG_output\\' + subject_name
-        output_vid_name = output_vid_dir + r'\\dlib_HOG_' + subject_name + output_vid_number[vid_number]
+        output_vid_dir = r'dlib_HOG_output/' + subject_name
+        output_vid_name = output_vid_dir + r'/dlib_HOG_' + subject_name + output_vid_number[vid_number]
         output_vid_path = os.path.join(base_folder, output_vid_dir)
 
         # checks whether the output folder exists
@@ -307,7 +307,7 @@ for subject_number, bb_start in subject_list:
         os.chdir(output_vid_path)
         # set video output configurations
         fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-        out_vid_name = "dlib_" + subject_name + output_vid_number[vid_number]
+        out_vid_name = "dlib_HOG_" + subject_name + output_vid_number[vid_number]
         out = cv2.VideoWriter("{}".format(out_vid_name), fourcc, 30, (600, 600))
 
         # capturing video from input file
@@ -356,7 +356,7 @@ for subject_number, bb_start in subject_list:
                 frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
                 fps_face_detector_start = time.time()
-                results = face_detector(frame_gray, 1)
+                allFaces = face_detector(frame_gray, 1)
                 fps_face_detector_end = time.time()
                 face_detector_processing_time = fps_face_detector_end - fps_face_detector_start
                 fps_face_detector = 1 / face_detector_processing_time
@@ -369,17 +369,25 @@ for subject_number, bb_start in subject_list:
                 frame_transition_end += 1
                 frame_n_end += 1
 
-                #  Conversion return value dlib The rectangular bounding box is opencv Rectangular bounding box , And make sure it falls in the image
+                #  Conversion return value dlib The rectangular bounding box is opencv Rectangular bounding box ,
+                #  And make sure it falls in the image
                 # loop over the face detections
                 try:
-                    print('try')
-                    for i, r in results:
+                    # print('try')
+                    for face in allFaces:
                         # convert dlib's rectangle to a OpenCV-style bounding box
                         # [i.e., (x, y, w, h)], then draw the face bounding box
-                        (x, y, w, h) = rect_to_bb(r)
-                        print('in for loop')
+
+                        # (x, y, w, h) = rect_to_bb(r)
+                        # print('here')
+                        face_rect = dlib.rectangle(int(face.left()), int(face.top()),
+                                                   int(face.right()), int(face.bottom()))
+
+                        (x, y, w, h) = rect_to_bb(face_rect)
+
+                        # print('in for loop')
                         (startX, startY, endX, endY) = x, y, x + w, y + h
-                        print('bb ok')
+                        # print('bb ok')
                         buffer = 5
 
                         if first_run == 1:
@@ -398,15 +406,14 @@ for subject_number, bb_start in subject_list:
                         #     # will use latest bb and update reference bb
                         #     old_startX, old_endX, old_startY, old_endY = startX, endX, startY, endY
 
-                        roi_color = frame[startY:endY, startX:endX]
-                        print('roi_color ok')
+                        # roi_color = frame[startY:endY, startX:endX]
+                        # print('roi_color ok')
                         # roi_color = clone_img
-                        roi_gray = cv2.cvtColor(roi_color, cv2.COLOR_BGR2GRAY)
+                        # roi_gray = cv2.cvtColor(roi_co, cv2.COLOR_BGR2GRAY)
 
                         fps_landmark_detector_start = time.time()
-                        landmarks = predictor(roi_gray,
-                                              dlib.rectangle(startX - startX, startY - startY, endX - startX,
-                                                             endY - startY))
+
+                        landmarks = predictor(frame_gray, face_rect)
 
                         fps_landmark_detector_end = time.time()
                         landmark_detector_processing_time = fps_landmark_detector_end - fps_landmark_detector_start
@@ -543,7 +550,7 @@ for subject_number, bb_start in subject_list:
                             x = landmarks.part(n).x
                             y = landmarks.part(n).y
                             # left_eye.append([x, y])
-                            cv2.circle(frame, (x + startX, y + startY), 1, color, -1)
+                            cv2.circle(frame, (x, y), 1, color, -1)
                     no_face_flag = 0
                 except:
                     print("no face")
@@ -591,7 +598,7 @@ for subject_number, bb_start in subject_list:
                 out.write(output)
 
                 # show the output frame
-                cv2.imshow("Output", output)
+                # cv2.imshow("Output", output)
 
                 # to stop the code when the letter 'q' is pressed on keyboard (only if cv2.imshow is used)
                 if cv2.waitKey(5) & 0xFF == ord('q'):
@@ -602,7 +609,7 @@ for subject_number, bb_start in subject_list:
                     cap.release()
                     print('[INFO] processing time =', timedelta(seconds=end - start))
                     break
-                # """
+                """
                 # Short run testing
                 if frame_n_end == (frame_n_start + length_of_run):
                     break_flag = 1
@@ -611,7 +618,7 @@ for subject_number, bb_start in subject_list:
                     cap.release()
                     print('[INFO] processing time =', timedelta(seconds=end - start))
                     break
-                # """
+                """
             else:
 
                 end = timer()
