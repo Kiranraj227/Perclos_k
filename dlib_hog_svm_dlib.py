@@ -338,9 +338,9 @@ for subject_number, bb_start in subject_list:
                 break
 
             ret, frame = cap.read()
-            frame = frame[bb_start[1]:bb_end[1], bb_start[0]:bb_end[0]]
 
             if ret:
+                frame = frame[bb_start[1]:bb_end[1], bb_start[0]:bb_end[0]]
                 fps_start = time.time()
 
                 # To improve performance, optionally mark the frame as not writeable to
