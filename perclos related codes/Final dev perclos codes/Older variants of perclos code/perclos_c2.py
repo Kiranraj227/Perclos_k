@@ -32,7 +32,7 @@ general_folder = 'general_folder'
 base_folder = r'C:\Users\USER\PycharmProjects\Perclos'
 # src_out = 'THIS PATH IS LOCATED OUTSIDE OR SOMEWHERE ELSE, IF UNAVAILABLE, JUST DOWNLOAD'
 # dlib_path = src_out + 'shape_predictor_68_face_landmarks.dat'
-dlib_path = 'shape_predictor_68_face_landmarks.dat'
+dlib_path = '../../Current work/shape_predictor_68_face_landmarks.dat'
 
 x = 1
 
@@ -162,7 +162,7 @@ class eye_close_state():
                                                                                 landmarks, frame)
                 # Calculating aspect ratio for both eyes
                 blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
-                # Rounding ear_avg on two decimal places
+                # Rounding blinking_ratio on two decimal places
                 blinking_ratio_1 = blinking_ratio * 100
                 blinking_ratio_2 = np.round(blinking_ratio_1)
                 blinking_ratio_rounded = blinking_ratio_2 / 100

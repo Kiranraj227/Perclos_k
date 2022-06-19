@@ -24,15 +24,15 @@ now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print("Current Time =", current_time)
 
-save_pickle_name = 'oatd_complete_all_specific_page'
-dir_open = '../eyes_open'
-dir_close = '../eyes_close'
+# save_pickle_name = 'oatd_complete_all_specific_page'
+# dir_open = 'eyes_open'
+# dir_close = 'eyes_close'
 general_folder = 'general_folder'
 # base_folder = r'C:\Users\rpb\Desktop\drowsiness_image_storage'
 base_folder = r'C:\Users\USER\PycharmProjects\Perclos'
 # src_out = 'THIS PATH IS LOCATED OUTSIDE OR SOMEWHERE ELSE, IF UNAVAILABLE, JUST DOWNLOAD'
 # dlib_path = src_out + 'shape_predictor_68_face_landmarks.dat'
-dlib_path = 'shape_predictor_68_face_landmarks.dat'
+dlib_path = '../../Current work/shape_predictor_68_face_landmarks.dat'
 
 x = 1
 
@@ -100,9 +100,9 @@ class eye_close_state():
 
         # Drawing horizontal and vertical line
         hor_line = cv2.line(frame, (left_point[0], left_point[1]), (right_point[0], right_point[1]), (255, 0, 0),
-                            3)
+                            1)
         ver_line = cv2.line(frame, (center_top[0], center_top[1]), (center_bottom[0], center_bottom[1]),
-                            (255, 0, 0), 3)
+                            (255, 0, 0), 1)
         # Calculating length of the horizontal and vertical line
         hor_line_lenght = self.euclidean_distance(left_point[0], left_point[1], right_point[0], right_point[1])
         ver_line_lenght = self.euclidean_distance(center_top[0], center_top[1], center_bottom[0],
@@ -112,11 +112,11 @@ class eye_close_state():
 
         return ear, left_point
 
-    def save_chunck_file(self, try_append_x, save_pickle_name):
-        save_pickle_name_folder = os.path.join(base_folder, general_folder, save_pickle_name)
-        # with open(f'{oatd_search_result_fname}.txt', 'r') as file:
-        with open(f'{save_pickle_name_folder}.pickle', 'wb') as handle:
-            pickle.dump(try_append_x, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # def save_chunck_file(self, try_append_x, save_pickle_name):
+    #     save_pickle_name_folder = os.path.join(base_folder, general_folder, save_pickle_name)
+    #     # with open(f'{oatd_search_result_fname}.txt', 'r') as file:
+    #     with open(f'{save_pickle_name_folder}.pickle', 'wb') as handle:
+    #         pickle.dump(try_append_x, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Function to extract frames
     def assign_eye_close_open(self):
@@ -190,16 +190,16 @@ class eye_close_state():
                 From the bold guy tutorial
                 vvvvv
                 '''
-                cv2.putText(gray, "Frame: {:.2f}".format(counter_file_name), (10, 20),
+                cv2.putText(frame, "Frame: {:.2f}".format(counter_file_name), (10, 20),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-                cv2.putText(gray, "Auto Sort: {}".format(state), (10, 300),
+                cv2.putText(frame, "Eyes State: {}".format(state), (10, 40),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-                data = dict(cv_image=gray, frame_NO=2, c=3)
-                try_append.append(gray)
-                cv2.imwrite(os.path.join(full_dir_path_general_folder, "frame%d.jpg" % counter_file_name), gray)
-                init_result = dict(cv_image=gray, state=state, frame_no=counter_file_name,
+                data = dict(cv_image=frame, frame_NO=2, c=3)
+                try_append.append(frame)
+                cv2.imwrite(os.path.join(full_dir_path_general_folder, "frame%d.jpg" % counter_file_name), frame)
+                init_result = dict(cv_image=frame, state=state, frame_no=counter_file_name,
                                    coordinate_face=coordinate_face, left_eye_left_point=left_eye_left_point)
                 initial_decision.append(init_result)
 
@@ -222,7 +222,7 @@ class eye_close_state():
                             print(
                                 f"{perct_prog:d} percents complete and elapsed {elapsed_time_minutes:.2f} minute and current time is {current_time}")
                             perct_prog_str = str(perct_prog)
-                            self.save_chunck_file(initial_decision, perct_prog_str)
+                            # self.save_chunck_file(initial_decision, perct_prog_str)
                             initial_decision = []
                             break
 
@@ -234,5 +234,5 @@ class eye_close_state():
         vid_obj.release()
 
 
-# eye_close_state(r'my_video.mov')
-eye_close_state(r'0.mp4')
+eye_close_state(r'S06_20170817_032034.mov')
+# eye_close_state(r'video_crop(frame only).mp4')

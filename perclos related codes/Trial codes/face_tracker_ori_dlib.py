@@ -38,7 +38,7 @@ import glob
 import dlib
 
 # Path to the video frames
-video_folder = os.path.join("..", "examples", "video_frames")
+video_folder = os.path.join("../../..", "examples", "video_frames")
 
 # Create the correlation tracker - the object needs to be initialized
 # before it can be used
